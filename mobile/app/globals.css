@@ -1,3 +1,30 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom black theme styles */
+@layer components {
+  .bg-black-theme {
+    background-color: #000000;
+  }
+
+  .bg-dark-theme {
+    background-color: #0a0a0a;
+  }
+
+  .bg-darker-theme {
+    background-color: #050505;
+  }
+
+  .text-white-theme {
+    color: #ffffff;
+  }
+
+  .text-gray-light {
+    color: #e5e5e5;
+  }
+
+  .border-black-theme {
+    border-color: #1a1a1a;
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "clone-mobile-app Docs": {
+      "type": "sse",
+      "url": "https://gitmcp.io/GioMjds/clone-mobile-app"
+    }
+  }
+}

@@ -4,3 +4,4 @@ prisma
 python-dotenv
 pydantic
 alembic
+passlib[bcrypt]

@@ -8,11 +8,11 @@ export default function Index() {
 		queryKey: ['hello'],
 		queryFn: auth.login
 	});
-	
+
 	return (
 		<SafeAreaView className='flex-1 items-center justify-center bg-black'>
 			<Text className='text-3xl text-white'>Hello, World!</Text>
-			<Text className='text-3xl text-white'>{data?.message}</Text>
+			<Text className='text-3xl text-white'>{data?.message}</Text>	
 		</SafeAreaView>
 	);
 }
