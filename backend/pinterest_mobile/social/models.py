@@ -10,13 +10,13 @@ class UserFollow(models.Model):
         'user_management.User',
         on_delete=models.CASCADE,
         related_name='following',
-        to_field='clerk_id'
+        to_field='user_id'
     )
     following = models.ForeignKey(
         'user_management.User',
         on_delete=models.CASCADE,
         related_name='followers',
-        to_field='clerk_id'
+        to_field='user_id'
     )
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -39,7 +39,7 @@ class BoardFollow(models.Model):
         'user_management.User',
         on_delete=models.CASCADE,
         related_name='followed_boards',
-        to_field='clerk_id'
+        to_field='user_id'
     )
     board = models.ForeignKey(
         Board,
@@ -66,7 +66,7 @@ class PinLike(models.Model):
         'user_management.User',
         on_delete=models.CASCADE,
         related_name='liked_pins',
-        to_field='clerk_id'
+        to_field='user_id'
     )
     pin = models.ForeignKey(
         Pin,
@@ -88,13 +88,12 @@ class PinLike(models.Model):
         return f"{self.user.username} likes pin"
 
 class Comment(models.Model):
-    """Pin comments with threading support"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
         'user_management.User',
         on_delete=models.CASCADE,
         related_name='comments',
-        to_field='clerk_id'
+        to_field='user_id'
     )
     pin = models.ForeignKey(
         Pin,

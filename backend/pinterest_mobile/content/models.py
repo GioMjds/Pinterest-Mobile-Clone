@@ -26,7 +26,7 @@ class Board(models.Model):
         'user_management.User',
         on_delete=models.CASCADE,
         related_name='boards',
-        to_field='clerk_id'
+        to_field='user_id'
     )
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -58,7 +58,7 @@ class Pin(models.Model):
         'user_management.User',
         on_delete=models.CASCADE,
         related_name='pins',
-        to_field='clerk_id'
+        to_field='user_id'
     )
     board = models.ForeignKey(
         Board,
@@ -114,7 +114,7 @@ class PinSave(models.Model):
         'user_management.User',
         on_delete=models.CASCADE,
         related_name='saved_pins',
-        to_field='clerk_id'
+        to_field='user_id'
     )
     pin = models.ForeignKey(
         Pin,
