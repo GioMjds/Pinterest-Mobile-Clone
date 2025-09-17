@@ -48,7 +48,7 @@ class Login(APIView):
                 httponly=True,
                 secure=True,
                 samesite='Lax',
-                max_age=int(timedelta(days=1).total_seconds())
+                max_age=int(timedelta(days=30).total_seconds())
             )
 
             response.set_cookie(
@@ -57,7 +57,7 @@ class Login(APIView):
                 httponly=True,
                 secure=True,
                 samesite='Lax',
-                max_age=int(timedelta(days=7).total_seconds())
+                max_age=int(timedelta(weeks=54).total_seconds())
             )
 
             return response
@@ -191,3 +191,4 @@ class VerifyOTP(APIView):
             }, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

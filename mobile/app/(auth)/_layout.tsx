@@ -1,14 +1,7 @@
-import { Redirect, Stack } from 'expo-router';
-import { useAuth } from '@clerk/clerk-expo';
+import { Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AuthRoutesLayout() {
-	const { isSignedIn } = useAuth();
-
-	if (isSignedIn) {
-		return <Redirect href={'/'} />;
-	}
-
 	return (
 		<SafeAreaView className="flex-1 bg-black">
 			<Stack screenOptions={{ headerShown: false }} />

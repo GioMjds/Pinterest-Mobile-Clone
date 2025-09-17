@@ -1,112 +1,143 @@
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useSignUp } from '@clerk/clerk-expo';
+import { Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { httpClient } from '@/configs/axios';
+import { auth } from '@/services/Auth';
 
 export default function SignUpScreen() {
-	const { isLoaded, signUp, setActive } = useSignUp();
-	const router = useRouter();
+    const router = useRouter();
 
-	const [emailAddress, setEmailAddress] = useState('');
-	const [password, setPassword] = useState('');
-	const [pendingVerification, setPendingVerification] = useState(false);
-	const [code, setCode] = useState('');
+    const [emailAddress, setEmailAddress] = useState('');
+    const [username, setUsername] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [pendingVerification, setPendingVerification] = useState(false);
+    const [otp, setOtp] = useState('');
+    const [loading, setLoading] = useState(false);
 
-	// Handle submission of sign-up form
-	const onSignUpPress = async () => {
-		if (!isLoaded) return;
+    const onSignUpPress = async () => {
+        setLoading(true);
+        try {
+            const res = await httpClient.post('/auth/register', {
+                email: emailAddress,
+                username,
+                first_name: firstName,
+                last_name: lastName,
+                password,
+                confirm_password: confirmPassword,
+            });
+            if (res?.message) {
+                setPendingVerification(true);
+                Alert.alert('OTP sent', 'Check your email for the OTP code.');
+            }
+        } catch (err: any) {
+            Alert.alert('Sign up failed', err?.message || 'Error');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-		// Start sign-up process using email and password provided
-		try {
-			await signUp.create({
-				emailAddress,
-				password,
-			});
+    const onVerifyPress = async () => {
+        setLoading(true);
+        try {
+            await auth.verifyRegisterOtp(emailAddress, username, firstName, lastName, password, otp);
+            router.replace('/sign-in');
+        } catch (err: any) {
+            Alert.alert('Verification failed', err?.message || 'Error');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-			// Send user an email with verification code
-			await signUp.prepareEmailAddressVerification({
-				strategy: 'email_code',
-			});
+    if (pendingVerification) {
+        return (
+            <SafeAreaView className="flex-1 justify-center items-center bg-white px-6">
+                <View className="w-full max-w-md">
+                    <Text className="text-2xl font-bold text-center mb-6">Verify your email</Text>
+                    <TextInput
+                        className="border border-gray-300 rounded-lg px-4 py-3 text-base bg-gray-50"
+                        value={otp}
+                        placeholder="Enter OTP"
+                        onChangeText={setOtp}
+                    />
+                    <TouchableOpacity
+                        onPress={onVerifyPress}
+                        className="bg-blue-600 rounded-lg py-3 mt-2"
+                        disabled={loading}
+                    >
+                        <Text className="text-white text-center font-semibold text-base">
+                            {loading ? 'Verifying...' : 'Verify'}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
 
-			// Set 'pendingVerification' to true to display second form
-			// and capture OTP code
-			setPendingVerification(true);
-		} catch (err) {
-			// See https://clerk.com/docs/custom-flows/error-handling
-			// for more info on error handling
-			console.error(JSON.stringify(err, null, 2));
-		}
-	};
-
-	// Handle submission of verification form
-	const onVerifyPress = async () => {
-		if (!isLoaded) return;
-
-		try {
-			// Use the code the user provided to attempt verification
-			const signUpAttempt = await signUp.attemptEmailAddressVerification({
-				code,
-			});
-
-			// If verification was completed, set the session to active
-			// and redirect the user
-			if (signUpAttempt.status === 'complete') {
-				await setActive({ session: signUpAttempt.createdSessionId });
-				router.replace('/');
-			} else {
-				// If the status is not complete, check why. User may need to
-				// complete further steps.
-				console.error(JSON.stringify(signUpAttempt, null, 2));
-			}
-		} catch (err) {
-			// See https://clerk.com/docs/custom-flows/error-handling
-			// for more info on error handling
-			console.error(JSON.stringify(err, null, 2));
-		}
-	};
-
-	if (pendingVerification) {
-		return (
-			<>
-				<Text>Verify your email</Text>
-				<TextInput
-					value={code}
-					placeholder="Enter your verification code"
-					onChangeText={(code) => setCode(code)}
-				/>
-				<TouchableOpacity onPress={onVerifyPress}>
-					<Text>Verify</Text>
-				</TouchableOpacity>
-			</>
-		);
-	}
-
-	return (
-		<View>
-			<>
-				<Text>Sign up</Text>
-				<TextInput
-					autoCapitalize="none"
-					value={emailAddress}
-					placeholder="Enter email"
-					onChangeText={(email) => setEmailAddress(email)}
-				/>
-				<TextInput
-					value={password}
-					placeholder="Enter password"
-					secureTextEntry={true}
-					onChangeText={(password) => setPassword(password)}
-				/>
-				<TouchableOpacity onPress={onSignUpPress}>
-					<Text>Continue</Text>
-				</TouchableOpacity>
-				<View style={{ display: 'flex', flexDirection: 'row', gap: 3 }}>
-					<Text>Already have an account?</Text>
-					<Link href="/sign-in">
-						<Text>Sign in</Text>
-					</Link>
-				</View>
-			</>
-		</View>
-	);
+    return (
+        <SafeAreaView className="flex-1 justify-center items-center bg-white px-6">
+            <View className="w-full max-w-md">
+                <Text className="text-2xl font-bold text-center mb-6">Sign up</Text>
+                <View className="space-y-4 gap-8">
+                    <TextInput
+                        className="border border-gray-300 rounded-lg px-4 py-3 text-base bg-gray-50"
+                        autoCapitalize="none"
+                        value={emailAddress}
+                        placeholder="Enter email"
+                        onChangeText={setEmailAddress}
+                    />
+                    <TextInput
+                        className="border border-gray-300 rounded-lg px-4 py-3 text-base bg-gray-50"
+                        value={username}
+                        placeholder="Enter username"
+                        onChangeText={setUsername}
+                    />
+                    <TextInput
+                        className="border border-gray-300 rounded-lg px-4 py-3 text-base bg-gray-50"
+                        value={firstName}
+                        placeholder="Enter first name"
+                        onChangeText={setFirstName}
+                    />
+                    <TextInput
+                        className="border border-gray-300 rounded-lg px-4 py-3 text-base bg-gray-50"
+                        value={lastName}
+                        placeholder="Enter last name"
+                        onChangeText={setLastName}
+                    />
+                    <TextInput
+                        className="border border-gray-300 rounded-lg px-4 py-3 text-base bg-gray-50"
+                        value={password}
+                        placeholder="Enter password"
+                        secureTextEntry={true}
+                        onChangeText={setPassword}
+                    />
+                    <TextInput
+                        className="border border-gray-300 rounded-lg px-4 py-3 text-base bg-gray-50"
+                        value={confirmPassword}
+                        placeholder="Confirm password"
+                        secureTextEntry={true}
+                        onChangeText={setConfirmPassword}
+                    />
+                    <TouchableOpacity
+                        onPress={onSignUpPress}
+                        className="bg-blue-600 rounded-lg py-3 mt-2"
+                        disabled={loading}
+                    >
+                        <Text className="text-white text-center font-semibold text-base">
+                            {loading ? 'Sending OTP...' : 'Continue'}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+                <View className="flex-row justify-center items-center mt-6 space-x-2">
+                    <Text className="text-gray-500">Already have an account?</Text>
+                    <Link href="/sign-in" asChild>
+                        <Text className="text-blue-600 font-semibold">Sign in</Text>
+                    </Link>
+                </View>
+            </View>
+        </SafeAreaView>
+    );
 }

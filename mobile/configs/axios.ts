@@ -25,7 +25,7 @@ export class ApiClient {
     private baseUrl: string;
 
     constructor(config: AxiosRequestConfig = {}) {
-        const env = Constants.expoConfig?.extra?.FASTAPI_URL;
+        const env = process.env.EXPO_PUBLIC_DJANGO_URL;
         this.baseUrl = `${env}/api`;
 
         this.axiosInstance = axios.create({

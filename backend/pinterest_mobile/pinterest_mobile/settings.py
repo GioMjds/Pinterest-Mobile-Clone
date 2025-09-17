@@ -33,6 +33,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "*",
+    '192.168.1.3',
+    "localhost",
+    "127.0.0.1",
 ]
 
 
@@ -74,6 +77,8 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
     "exp://192.168.1.3:8081",
+    "http://192.168.1.3:8081",
+    "http://localhost:8081",
     os.getenv("EXPO_URL")
 ]
 
@@ -113,8 +118,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(weeks=54),
 }
 
 WSGI_APPLICATION = 'pinterest_mobile.wsgi.application'
